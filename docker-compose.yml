@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+
+  configserver:
+    image: rust/configserver:latest
+    mem_limit: 700m
+    ports:
+      - "8071:8071"
+    networks:
+      - xxx
+
+  accounts:
+    image: rust/rustaccounts:latest
+    mem_limit: 700m
+    ports:
+      - "8081:8081"
+    networks:
+      - xxx
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+
+  loans:
+    image: rust/rustloans:latest
+    mem_limit: 700m
+    ports:
+      - "8083:8083"
+    networks:
+      - xxx
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+
+  cards:
+    image: rust/rustcards:latest
+    mem_limit: 700m
+    ports:
+      - "8082:8082"
+    networks:
+      - xxx
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+
+networks:
+  xxx:
